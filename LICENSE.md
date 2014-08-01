@@ -1,4 +1,4 @@
-/*
+
 	OIL (Object-Oriented IPV4/IPV6 Library) [Last Updated: 7/31/2014]
 	
 	Copyright (c) 2014 Sebastian Garth
@@ -13,4 +13,4 @@
 	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 	
 	Please submit any licensing requests, bug reports, patches, or comments to sebastiangarth@gmail.com. 
-*/
+	
