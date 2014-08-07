@@ -1,5 +1,5 @@
 /*
-	OIL (Object-Oriented IPV4/IPV6 Library)
+	OIL (Object-Oriented IPV4/IPV6 Library) [v0.190983]
 	
 	Copyright (c) 2014 Sebastian Garth (sebastiangarth@gmail.com)
 	
@@ -531,58 +531,62 @@ ip lookup(ip const& host)
 	return lookup(host, result) ? *result.begin() : ip();
 }
 
+struct box
+{
+	box(void)
+	: data(NULL), size(0), width(0)
+	{	}
+	
+	box(char const& data)
+	: data(&data), size(1), width(1)
+	{	}
+
+	box(unsigned char const& data)
+	: data(&data), size(1), width(1)
+	{	}		
+		
+	template<typename ArrayLike, typename SFINAE = typename ArrayLike::value_type>
+	box(ArrayLike const& buffer)
+	{	
+		width = sizeof(buffer[0]);
+		size = buffer.size() * width;
+		if(size != 0)
+			data = &buffer[0];
+		else
+			data = NULL;
+	}		
+		
+	template<typename Array>
+	box(Array const* array, int length)
+	{	
+		data = array;
+		width = sizeof(array[0]);
+		size = length * width;
+	}
+		
+	template<typename Array>
+	box(Array const* array)
+	{
+		data = array;
+		width = sizeof(array[0]);		
+		Array const* end = array;
+		while(*end)
+			++end;
+		size = (end - array) * width;
+	}			
+		
+	void const* data;
+	int size;
+	int width;
+};
+	
 class service
 {		
-protected:	
+public:	
 
-	struct box
-	{
-		box(void)
-		: data(NULL), size(0), width(0)
-		{	}
-		
-		box(char const& data)
-		: data(&data), size(1), width(1)
-		{	}
-
-		box(unsigned char const& data)
-		: data(&data), size(1), width(1)
-		{	}		
-		
-		template<typename ArrayLike, typename SFINAE = typename ArrayLike::value_type>
-		box(ArrayLike const& buffer)
-		{	
-			width = sizeof(buffer[0]);
-			size = buffer.size() * width;
-			if(size != 0)
-				data = &buffer[0];
-			else
-				data = NULL;
-		}		
-		
-		template<typename Array>
-		box(Array const* array, int length)
-		{	
-			data = array;
-			width = sizeof(array[0]);
-			size = length * width;
-		}
-		
-		template<typename Array>
-		box(Array const* array)
-		{
-			data = array;
-			width = sizeof(array[0]);		
-			Array const* end = array;
-			while(*end)
-				++end;
-			size = (end - array) * width;
-		}			
-		
-		void const* data;
-		int size;
-		int width;
-	};
+	socket connection;
+	functor_like<int> flags_send;
+	functor_like<int> flags_recv;
 	
 	bool send(box const& buffer)
 	{
@@ -607,6 +611,34 @@ protected:
 			exception::propagate();			
 			return false;
 		}						
+	}
+
+	bool send(char const& data)
+	{	
+		return send(box(data));
+	}
+
+	bool send(unsigned char const& data)
+	{	
+		return send(box(data));
+	}		
+	
+	template<typename ArrayLike, typename SFINAE = typename ArrayLike::value_type>
+	bool send(ArrayLike const& data)
+	{	
+		return send(box(data));
+	}		
+	
+	template<typename Array>
+	bool send(Array const* data, int length)
+	{	
+		return send(box(data, length));
+	}
+	
+	template<typename Array>
+	bool send(Array const* data)
+	{
+		return send(box(data));
 	}
 
 	int recv(box const& buffer)
@@ -635,46 +667,12 @@ protected:
 		}		
 	}	
 	
-public:
-	
-	socket connection;
-	functor_like<int> flags_send;
-	functor_like<int> flags_recv;
-	
-	bool send(char const& data)
-	{	
-		return send(box(data));
-	}
-
-	bool send(unsigned char const& data)
-	{	
-		return send(box(data));
-	}		
-	
-	template<typename ArrayLike, typename SFINAE = typename ArrayLike::value_type>
-	bool send(ArrayLike const& data)
-	{	
-		return send(box(data));
-	}		
-	
-	template<typename Array>
-	bool send(Array const* data, int length)
-	{	
-		return send(box(data, length));
-	}
-	
-	template<typename Array>
-	bool send(Array const* data)
-	{
-		return send(box(data));
-	}					
-	
-	bool recv(char& data)
+	int recv(char& data)
 	{	
 		return recv(box(data));
 	}
 
-	bool recv(unsigned char& data)
+	int recv(unsigned char& data)
 	{	
 		return recv(box(data));
 	}		
@@ -884,6 +882,7 @@ public:
 
 }	/* namespace detail */
 
+using detail::box;
 using detail::port_valid;
 using detail::functor_like;
 using detail::settings;
