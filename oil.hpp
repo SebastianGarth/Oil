@@ -1,5 +1,5 @@
 /*
-	OIL (Object-Oriented IPV4/IPV6 Library) [v0.1909830]
+	OIL (Object-Oriented IPV4/IPV6 Library) [v0.19098300]
 	
 	Copyright (c) 2014 Sebastian Garth (sebastiangarth@gmail.com)
 	
@@ -87,11 +87,11 @@ enum
 
 #endif	/* !OIL_WINSOCK_PLATFORM */
 
-bool port_valid(int value)
+bool valid_port(int value)
 {
 	if(value < 0)
 		return false;
-	int two_2_the_16th = 1 << 16;
+	int two_2_the_16th = unsigned(1) << 16;
 /*
 	If the following is true then we're most definitely dealing with a number less than 2^16...
 */	
@@ -418,7 +418,7 @@ struct ip
 			fail<conversion_exception>(NULL == inet_ntop(details.traits.family, text, buffer, INET6_ADDRSTRLEN));	
 			address = buffer;	
 			port = ntohs(details.traits.port);
-			fail<conversion_exception>(false == port_valid(port));			
+			fail<conversion_exception>(false == valid_port(port));			
 			protocol = details.protocol;
 			m_family = details.traits.family;
 			return true;
@@ -478,7 +478,7 @@ bool sockaddr::set(ip const& details)
 		}
 		fail<conversion_exception>(false == socket(traits.family, details.protocol).valid());
 		protocol = details.protocol;	
-		fail<conversion_exception>(false == port_valid(details.port));
+		fail<conversion_exception>(false == valid_port(details.port));
 		traits.port = htons(details.port);	
 		return true;
 	}
@@ -500,7 +500,7 @@ bool lookup(ip const& host, PushBackInterface& result)
 		addrinfo settings = addrinfo();
 		settings.ai_family = AF_UNSPEC;
 		settings.ai_protocol = host.protocol;	
-		fail<lookup_exception>(false == port_valid(host.port));
+		fail<lookup_exception>(false == valid_port(host.port));
 		char host_port_text[6];
 		sprintf(host_port_text, "%.5d", host.port);
 		fail<lookup_exception>(0 != getaddrinfo(host.address().c_str(), host_port_text, &settings, &link));
@@ -884,7 +884,7 @@ public:
 }	/* namespace detail */
 
 using detail::box;
-using detail::port_valid;
+using detail::valid_port;
 using detail::functor_like;
 using detail::settings;
 using detail::ip;
@@ -915,4 +915,3 @@ using detail::INVALID_SOCKET;
 }	/* namespace oil */
 
 #endif	/* OIL_HPP_INCLUDED */
-
