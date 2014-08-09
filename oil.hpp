@@ -186,7 +186,7 @@ protected:
 /*
 	The purpose here is to prevent multiple linker references
 */
-template<typename IGNORED> struct settings_prevent_multiple_references_to_statics
+template<typename IGNORED = void> struct settings_prevent_multiple_references_to_statics
 {
 	static bool s_exceptions;
 	static int s_default_buffer_length;
@@ -195,7 +195,7 @@ template<typename IGNORED> struct settings_prevent_multiple_references_to_static
 template<typename IGNORED> bool settings_prevent_multiple_references_to_statics<IGNORED>::s_exceptions = false; 
 template<typename IGNORED> int settings_prevent_multiple_references_to_statics<IGNORED>::s_default_buffer_length = OIL_DEFAULT_BUFFER_LENGTH; 
 
-struct settings : settings_prevent_multiple_references_to_statics<void>
+struct settings : settings_prevent_multiple_references_to_statics<>
 {
 	static void exceptions(bool value)
 	{
