@@ -29,7 +29,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>	/* close() */
-#endif	/* !defined(OIL_WINSOCK_PLATFORM) */
+#endif	/* !OIL_WINSOCK_PLATFORM */
 
 namespace oil {
 	
@@ -72,7 +72,7 @@ protected:
 } 
 	startup();
 	
-#endif	/* OIL_WINSOCK_PLATFORM */	
+#else
 	
 typedef int SOCKET;
 	
@@ -84,6 +84,8 @@ enum
 	SOCKET_ERROR = -1,
 	INVALID_SOCKET = -1
 };
+
+#endif	/* !OIL_WINSOCK_PLATFORM */
 
 bool port_valid(int value)
 {
