@@ -1,5 +1,5 @@
 /*
-	OIL (Object-Oriented IPV4/IPV6 Library) [v0.190983005]
+	OIL (Object-Oriented IPV4/IPV6 Library) [v0.19098300562]
 	
 	Copyright (c) 2014 Sebastian Garth (sebastiangarth@gmail.com)
 	
@@ -475,10 +475,7 @@ bool endpoint::set(ip const& details)
 		else if(0 < inet_pton(AF_INET, details.address().c_str(), &traits.ipv4.sin_addr))
 			traits.family = AF_INET;
 		else
-		{
-			traits.family = 0;
 			fail<conversion_exception>();
-		}
 		fail<conversion_exception>(false == socket(traits.family, details.protocol).valid());
 		protocol = details.protocol;	
 		fail<conversion_exception>(false == valid_port(details.port));
@@ -505,7 +502,7 @@ bool lookup(ip const& host, PushBackInterface& result)
 		settings.ai_protocol = host.protocol;	
 		fail<lookup_exception>(false == valid_port(host.port));
 		char host_port_text[6];
-		sprintf(host_port_text, "%.5d", host.port);
+		sprintf(host_port_text, "%d", host.port);
 		fail<lookup_exception>(0 != getaddrinfo(host.address().c_str(), host_port_text, &settings, &link));
 		ip data;
 		for(; link != 0; link = link->ai_next)
