@@ -216,8 +216,8 @@ struct settings : settings_prevent_multiple_references_to_statics<>
 
 protected:
 	
-	using settings_prevent_multiple_references_to_statics<void>::s_exceptions;
-	using settings_prevent_multiple_references_to_statics<void>::s_default_buffer_length;	
+	using settings_prevent_multiple_references_to_statics<>::s_exceptions;
+	using settings_prevent_multiple_references_to_statics<>::s_default_buffer_length;	
 };
 
 struct exception
