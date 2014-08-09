@@ -1,5 +1,5 @@
 /*
-	OIL (Object-Oriented IPV4/IPV6 Library) [v0.190983]
+	OIL (Object-Oriented IPV4/IPV6 Library) [v0.1909830]
 	
 	Copyright (c) 2014 Sebastian Garth (sebastiangarth@gmail.com)
 	
