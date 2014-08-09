@@ -1,5 +1,5 @@
 /*
-	OIL (Object-Oriented IPV4/IPV6 Library) [v0.19098300]
+	OIL (Object-Oriented IPV4/IPV6 Library) [v0.190983005]
 	
 	Copyright (c) 2014 Sebastian Garth (sebastiangarth@gmail.com)
 	
@@ -340,7 +340,7 @@ public:
 
 struct ip;
 
-class sockaddr
+class endpoint
 {
 public:
 	
@@ -361,7 +361,7 @@ public:
 		sizeof_implementation = sizeof(implementation_specific)
 	};		
 			
-	sockaddr(void)
+	endpoint(void)
 	{	
 		invalidate();
 	}
@@ -403,7 +403,7 @@ struct ip
 		*this = ip();
 	}
 	
-	bool set(sockaddr const& details)
+	bool set(endpoint const& details)
 	{
 		try
 		{
@@ -431,39 +431,42 @@ struct ip
 		}	
 	}	
 	
-	sockaddr details(void) const
+	endpoint details(void) const
 	{
-		sockaddr result;
+		endpoint result;
 		result.set(*this);	
 		return result;
 	}
-	
-	bool valid(void) const
-	{
-		sockaddr result;
-		return true == result.set(*this);		
-	}	
-	
-	int family(void) /* Note: NOT const */
+/*
+	KLUDGE: the user may have set address, so we can't use a functor here
+	TODO: put into functor interface
+*/	
+	int family(void) const
 	{
 		try
 		{
 			if(m_family == 0)
-				m_family = details().traits.family;
+				return details().traits.family;
 		}
 		catch(...)
 		{
 			return 0;
 		}
-		return m_family;	
+		return m_family;
 	}
-
-	protected:
+	
+	bool valid(void) const
+	{
+		endpoint result;
+		return true == result.set(*this);		
+	}
+	
+protected:
 	
 	functor_like<int> m_family;		
 };
 
-bool sockaddr::set(ip const& details)
+bool endpoint::set(ip const& details)
 {
 	try
 	{
@@ -507,8 +510,8 @@ bool lookup(ip const& host, PushBackInterface& result)
 		ip data;
 		for(; link != 0; link = link->ai_next)
 		{
-			sockaddr details;
-			memcpy(&details, link->ai_addr, sockaddr::sizeof_implementation);
+			endpoint details;
+			memcpy(&details, link->ai_addr, endpoint::sizeof_implementation);
 			details.protocol = link->ai_protocol;
 			fail<lookup_exception>(false == data.set(details));
 			result.push_back(data);
@@ -746,7 +749,7 @@ public:
 		try
 		{
 			ip result;
-			sockaddr details;
+			endpoint details;
 			socklen_t size = sizeof(details);
 			fail<exception>(!connection.valid());
 			fail<exception>(0 != getpeername(connection, (::sockaddr*)&details, &size));
@@ -765,7 +768,7 @@ public:
 		try
 		{
 			ip result;
-			sockaddr details;
+			endpoint details;
 			socklen_t size = sizeof(details);
 			fail<exception>(!connection.valid());
 			fail<exception>(0 != getsockname(connection, (::sockaddr*)&details, &size));
@@ -802,7 +805,7 @@ public:
 		try
 		{
 			shutdown();
-			sockaddr details = host.details();
+			endpoint details = host.details();
 			connection = socket(details.traits.family, host.protocol);
 			fail<connect_exception>(false == connection.valid());	
 			fail<connect_exception>(SOCKET_ERROR == ::connect(connection, (::sockaddr*)&details, sizeof(details)));
@@ -837,7 +840,7 @@ public:
 		try
 		{
 			unbind();
-			sockaddr details = interface.details();
+			endpoint details = interface.details();
 			binding = socket(details.traits.family, interface.protocol);
 			fail<bind_exception>(false == binding.valid());
 			fail<bind_exception>(SOCKET_ERROR == ::bind(binding, (::sockaddr*)&details, sizeof(details)));
@@ -856,7 +859,7 @@ public:
 		try
 		{
 			shutdown();
-			sockaddr details;
+			endpoint details;
 			socklen_t size = sizeof(details);
 			connection = socket(::accept(binding, (::sockaddr*)&details, &size), binding.family(), binding.protocol());
 			fail<accept_exception>(false == connection.valid());
